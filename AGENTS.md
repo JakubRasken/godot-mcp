@@ -3,6 +3,10 @@
 # Godot 4.6 - Headless - CI-safe - .NET 9 SDK plus Godot Mono included
 ###############################################################################
 
+Fork note: this workspace tracks the original
+`FromAriel/CODEXVault_GODOT` repo and adds a Windows bootstrap and validation
+path. Keep the Linux/container flow intact while maintaining the Windows path.
+
 [!IMPORTANT]
 Indentation: always 4 spaces in `.gd`, `.gdshader`, and `.cs`. Never use tabs.
 `gdlint` expects `class_name` before `extends`.

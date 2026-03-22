@@ -1,182 +1,52 @@
-    ▛▀▜▙▛▄▙▄▜▛▀▜▛▄▙▄▜▛▀▜▛▄▙▄▜▛▀▜▛▄▙▄▜▛▀▜▛▄▙▄▜▛▀▜▛▄▙▄▜▛▄▄
-  ▛    ____ ___  ____  ______   ___   __     __   _     _   _  _     _____   ▙
- ▛   / ___/ _ \|  _ \| ___\ \ / /    \ \   / /  / \   | | | | | |   |_   _|    ▜
-█    | |  | | | | | | |  _| \ V /      \ \ / /  / ⋏ \  | | | | | |     | |       █
- ▙  | |__| |_| | |_| | |___/ ⋏ \       \ V /  / /_\ \ | |_| | | |__   | |      ▜
-  ▜  \____\___/|____/|______/ \__\       \_/  /_/   \_\ \___/ |____|  |_|     ▛
-   ▜▙▄▛▜▀▛▙▄▜▙▄▛▜▀▛▙▄▜▙▄▛▜▀▛▙▄▜▙▄▛▜▀▛▙▄▜▙▄▛▜▀▛▙▄▜▙▄▛▜▀
-
-
 ###############################################################################
-# 🧰 GODOT BULLETPROOF TOOLING SUITE – README.txt
-# Author: Ariel M. Williams
-# Purpose: Fully automatic, reproducible, CI-safe setup for Godot, Mono, .NET,
-#          and multi-language environments (usable beyond Godot).
+# CODEXVault_GODOT - README.txt
+# Original upstream: https://github.com/FromAriel/CODEXVault_GODOT
+# Fork purpose: preserve the original Linux/container setup and add a working
+# Windows bootstrap plus validation flow for local Godot use.
 ###############################################################################
 
-👋 Welcome to your one-stop setup ecosystem for **Godot 4.6 (Mono)**, modern .NET SDKs, and a rich polyglot development stack.
+This repository is a Godot tooling bundle, not a complete Godot game project.
 
-These scripts are designed to:
+What this fork adds:
 
-✔️ Fail gracefully without borking the terminal  
-✔️ Retry network and installation errors with backoff 
-      (eesential for concurrent runs of CODEX, Multiple concurrent D/L of the same file can fail.) 
-✔️ Set up robust, CI-friendly, reproducible dev environments  
-✔️ Be modular and extensible to fit **any language stack** (not just Godot)
+- `.codex/setup.ps1`
+  Windows bootstrap that installs Godot Mono, .NET SDK, GDToolkit, and
+  pre-commit into `.\.local\` without requiring admin rights.
 
----
+- `.codex/validate.ps1`
+  Windows validation loop for:
+  - `godot --headless --editor --import --quit --path .`
+  - `godot --headless --editor --check-only --quit --path .`
+  - `dotnet build` when a solution exists
 
-📂 FILE OVERVIEW
-===============
+- Updated `README.md`, `AGENTS.md`, and `.codex/AGENTS.md`
+  These now describe both the original Linux flow and the Windows fork path.
 
-✔ `.codex/setup.sh`
-  - Master installer for everything needed to work with Godot, Mono, .NET, and GDToolkit.
-  - Also installs essential CLI tools, retries broken installs, and validates your toolchain.
+What stays from upstream:
 
-✔ `.codex/fix_indent.sh`
-  - Fast and safe GDScript auto-formatter for pre-commit.
-  - Uses `gdformat` with retry + timeout. If it fails, your commit won’t be blocked permanently.
+- `.codex/setup.sh`
+  Linux/container bootstrap for CI-style environments.
 
-✔ `AGENTS.md`
-  - The Codex Agent Tooling Contract.
-  - Describes CI-safe validation, GDScript import passes, lint rules, and style format expectations.
+- `.codex/fix_indent.sh`
+  GDScript formatting helper.
 
-✔ `.codex/TOOLS.md`
-  - An exhaustive manifest of everything `.codex/setup.sh` + the Dockerfile deliver.
-  - Lists base packages, languages, dev tools, helper commands, and their install mechanisms.
+- `Godot_Toolscripts/`
+  EditorScript utilities you can copy into a Godot project.
 
----
+Windows quick start:
 
-⚙ WHAT DOES IT INSTALL?
-========================
+1. Run:
 
-From `.codex/TOOLS.md`, `.codex/setup.sh`, and env logic:
+   powershell -ExecutionPolicy Bypass -File .codex\setup.ps1
 
-🔧 Core Packages (via APT)
---------------------------
-- OS: Ubuntu 24.04 base
-- CLI: curl, wget, unzip, html2text, vim-common, lynx, elinks, etc.
-- Build: make, cmake, pkg-config, ccache, build-essential
-- Networking: dnsutils, netcat, openssh-client
-- DevOps: git, git-lfs, rsync
-- Browsers (text): `w3m`, `lynx`, `elinks`, `links`
+2. Then validate:
 
-🎮 Godot Engine (Mono)
-----------------------
-- Installs from official GitHub zip release
-- Installs to `/opt/godot-mono/<tag>` (example: `/opt/godot-mono/4.6-stable`)
-- Symlinked to `/usr/local/bin/godot` for easy CLI use
+   powershell -ExecutionPolicy Bypass -File .codex\validate.ps1
 
-🌐 .NET SDK (via Microsoft apt repo)
-------------------------------------
-- Installs .NET 8 SDK and runtime
-- Uses Microsoft’s official signed keyring
-- Integrates with Mono builds inside Godot
+Notes:
 
-🐍 Python / GDToolkit
----------------------
-- Installs `gdtoolkit` (for `gdformat`, `gdlint`)
-- Sets up `pre-commit` if used in a Git repo
-- Ensures the project won’t break CI due to style violations
-
-📦 Godot Runtime Libs
-----------------------
-- Dynamically installs latest ICU
-- Installs audio, Vulkan, GL, and windowing deps: `libgl1`, `libpulse0`, `libxi6`, etc.
-
----
-
-🔁 HOW DO THE SCRIPTS WORK?
-===========================
-
-▶ `.codex/setup.sh` – MASTER INSTALLER
-
-1. Updates APT and installs core tooling
-2. Dynamically fetches the latest ICU version
-3. Downloads and installs `Godot-mono` to a static path
-4. Adds `dotnet`, `gdformat`, `gdlint`, `godot` to your PATH
-5. Runs a `godot_import_pass` which:
-   - Triggers a cache warm-up via `godot --import`
-   - Silently ignores known benign warnings
-   - Flags errors like broken `main_scene`, or missing `fs` type
-
-6. Verifies essential commands exist
-7. Shows a final success log with all key paths
-
-🎛 SELECTING GODOT VERSION (CLOUD-FRIENDLY)
-=========================================
-
-`Godot-mono` defaults to `4.6-stable` and auto-detects CPU arch.
-Override by exporting env vars before running:
-
-- Pin a release tag (recommended): `GODOT_TAG=4.6-stable`
-- Track latest stable: `GODOT_TAG=latest-stable` (uses GitHub API)
-- Separate fields: `GODOT_VERSION=4.6` + `GODOT_CHANNEL=rc1`
-- Force arch: `GODOT_ARCH=arm64` (or `x86_64`, `x86_32`, `arm32`)
-- Override source repo: `GODOT_REPO=godotengine/godot`
-
-▶ `.codex/fix_indent.sh` – SAFE FORMATTER
-
-- Filters input to only run on `.gd` files
-- Uses `gdformat --use-spaces=4` with a 20s timeout
-- Logs any failure to `/tmp/gdformat.log`
-- Fails gracefully with logs, avoiding commit breakage
-
-▶ `AGENTS.md` – TOOLING CONTRACT
-
-- CI build rules and best practices
-- Recommends 4-space indentation, class-order for GDScript
-- Covers proper patch hygiene, formatting, and retry loop
-- Validates both GDScript and C# builds with exit checks
-
-▶ `.codex/TOOLS.md` – TOOLCHAIN INVENTORY
-
-- Categorized list of:
-  - All installed APT packages
-  - Language versions and tooling paths
-  - Helper functions (`retry`, `pick_icu`, `godot_import_pass`)
-  - Environmental variables (`GODOT_BIN`, `ONLINE_DOCS_URL`)
-  - CLI helper utilities installed by language ecosystems
-
----
-
-🧹 TRIMMING DOWN – LEAN MODE
-============================
-
-Want a smaller, faster install? Here’s how to strip it to essentials:
-
-1. **For Godot-only users (no Mono/.NET):**
-   - Remove `.NET SDK` section from `.codex/setup.sh`
-   - Skip `dotnet` build steps and `dotnet format` in validation
-
-2. **For CLI-only environments:**
-   - Drop all `w3m`, `lynx`, `elinks`, and HTML-to-text browsers
-   - Keep just `curl`, `wget`, `less`, `vim-common`
-
-3. **For single-language use:**
-   - Remove unrelated toolchains from `.codex/TOOLS.md` for clarity
-   - Comment out their installs from Dockerfile if applicable
-
-4. **Remove Pre-commit Hooks (optional):**
-   - Delete `pre-commit` section in `.codex/setup.sh`
-   - Remove `.codex/fix_indent.sh` and any `.pre-commit-config.yaml` files
-
-5. **Drop Godot GUI support:**
-   - Remove `libpulse`, `libx11`, `mesa-vulkan`, etc. if you only do headless build
-
----
-
-✅ FINAL THOUGHTS
-=================
-
-This suite is designed to be:
-
-- Safe for CI/CD with full validation
-- Fully headless-compatible (no GUI needed)
-- Portable across teams and languages
-- Adaptable to non-Godot use with a few tweaks
-
-Add this README.txt to the root of your repo for contributors.
-
-Happy building!
-— ChatGPT & Ariel 💜
+- The validated local Windows path for Godot 4.6 Mono uses .NET 9.
+- The bootstrap puts Godot into self-contained mode so editor state stays under
+  `.\.local\` instead of `%APPDATA%`.
+- If a repo is not a Godot project yet, validation skips the Godot checks until
+  `project.godot` exists.

@@ -10,6 +10,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# Windows validation companion for the forked local bootstrap path.
+
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
 function Resolve-ExistingPath {

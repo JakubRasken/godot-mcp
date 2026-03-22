@@ -1,5 +1,10 @@
 # CODEXVault_GODOT
 
+Fork note: this branch is a Windows-compatibility fork/update of the original
+`FromAriel/CODEXVault_GODOT` repository. The original Linux/container bootstrap
+is still present, and this fork adds a verified local Windows bootstrap and
+validation flow for Godot 4.6 Mono.
+
 This repo is a Godot-support toolkit, not a complete Godot game project. The useful parts here are:
 
 - `.codex/setup.sh`: Linux CI/bootstrap script from the original repo.
@@ -49,5 +54,8 @@ To use them in your own Godot project:
 
 ## Notes
 
+- Original upstream: `https://github.com/FromAriel/CODEXVault_GODOT`
+- Fork purpose: keep the original Linux setup, add Windows setup and validation,
+  and document the verified Godot 4.6 Mono plus .NET 9 workflow.
 - The original `readme.txt` is still in the repo, but it documents the Linux/container path.
 - This repo still does not include a sample `project.godot`. Add or copy these scripts into a real Godot project before expecting import/check passes to do useful work.

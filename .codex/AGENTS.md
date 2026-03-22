@@ -5,6 +5,10 @@
 ###############################################################################
 -->
 
+Fork note: this repo started as `FromAriel/CODEXVault_GODOT` and this fork adds
+a Windows-compatible bootstrap and validation flow. Keep the Linux/container
+path intact when updating docs or scripts.
+
 ```text
 ###############################################################################
 # Codex Agent Workspace - Tooling Contract and Guide
@@ -42,6 +46,8 @@ godot --headless --editor --import --quit --path . --quiet
 godot --headless --editor --check-only --quit --path . --quiet
 dotnet build --no-restore --nologo
 ```
+
+This fork keeps the original Linux flow and adds the Windows path above.
 
 ## Patch Hygiene and Format
 

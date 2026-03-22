@@ -10,6 +10,9 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+# Windows bootstrap added on top of the original Linux-first CODEXVault_GODOT.
+# Keeps downloaded tools inside .\.local\ for a portable fork workflow.
+
 $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 $LocalRoot = Join-Path $RepoRoot ".local"
 $DownloadRoot = Join-Path $LocalRoot "downloads"
