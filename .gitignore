@@ -1,0 +1,5 @@
+/.local/
+/.godot/
+/ZZZScriptCompilation.txt
+/ZZZscenes_inspector_dump.txt
+/mono_crash.*
